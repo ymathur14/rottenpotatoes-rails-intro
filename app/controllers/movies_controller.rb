@@ -7,8 +7,74 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @all_ratings = Movie.all_ratings
+    @sort_what = "na"
+    
+    #sorting da shiit
+    if session[:sort_title].nil?
+      session[:sort_title] = 0
+    end
+    if session[:sort_release_date].nil?
+      session[:sort_release_date] = 0
+    end
+      
+    if not params[:sort_title].nil?
+      session[:sort_title] = 1
+      session[:sort_release_date] = 0
+    end
+    if not params[:sort_release_date].nil?
+      session[:sort_title] = 0
+      session[:sort_release_date] = 1
+    end
+    
+    params[:sort_title] = session[:sort_title]
+    params[:sort_release_date] = session[:sort_release_date]
+    
+
+    #no ratings passed in
+    if params[:ratings].nil?
+      flash.keep
+      #if no selection then display all 
+      if session[:selected_ratings].nil?
+        rat = {} ; 
+        @all_ratings.each { |r| rat[r] = "yes" } ; 
+        session[:selected_ratings] = rat
+        @selected_ratings = session[:selected_ratings]
+      else
+        @selected_ratings = session[:selected_ratings]
+        if not params[:sort].nil?
+          session[:sort] = params[:sort]
+        end
+      end
+      # update sort settings, if any supplied
+      if not params[:sort].nil?
+        session[:sort] = params[:sort] 
+      end
+      redirect_to movies_path :ratings => @selected_ratings, :sort => session[:sort] and return
+    else
+      #set to params ratings
+      session[:selected_ratings] = params[:ratings]
+      @selected_ratings = session[:selected_ratings]
+    end
+    
+    temp = Movie
+    if not session[:selected_ratings].nil?
+      temp = temp.where(:rating => session[:selected_ratings].keys)
+    end
+
+    @movies = temp.order(params[:sort])
+    
+    if session[:sort_title] == 1
+      @movies = temp.order(:title).where(:rating => session[:selected_ratings].keys)
+      @sort_what = "title"
+    elsif session[:sort_release_date] == 1
+      @movies = temp.order(:release_date).where(:rating => session[:selected_ratings].keys)
+      @sort_what = "title"
+    else
+      @sort_what = "na"
+    end
   end
+
 
   def new
     # default: render 'new' template
@@ -44,4 +110,5 @@ class MoviesController < ApplicationController
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
+  
 end
