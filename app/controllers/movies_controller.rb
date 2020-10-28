@@ -8,9 +8,8 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    @sort_what = "na"
     
-    #sorting da shiit
+    #sorting da columnz
     if session[:sort_title].nil?
       session[:sort_title] = 0
     end
@@ -29,7 +28,6 @@ class MoviesController < ApplicationController
     
     params[:sort_title] = session[:sort_title]
     params[:sort_release_date] = session[:sort_release_date]
-    
 
     #no ratings passed in
     if params[:ratings].nil?
@@ -46,13 +44,13 @@ class MoviesController < ApplicationController
           session[:sort] = params[:sort]
         end
       end
-      # update sort settings, if any supplied
+      # session reflects params sorting 
       if not params[:sort].nil?
         session[:sort] = params[:sort] 
       end
-      redirect_to movies_path :ratings => @selected_ratings, :sort => session[:sort] and return
+      redirect_to movies_path :ratings => @selected_ratings, :sort => session[:sort]
+      return
     else
-      #set to params ratings
       session[:selected_ratings] = params[:ratings]
       @selected_ratings = session[:selected_ratings]
     end
@@ -66,12 +64,10 @@ class MoviesController < ApplicationController
     
     if session[:sort_title] == 1
       @movies = temp.order(:title).where(:rating => session[:selected_ratings].keys)
-      @sort_what = "title"
     elsif session[:sort_release_date] == 1
       @movies = temp.order(:release_date).where(:rating => session[:selected_ratings].keys)
-      @sort_what = "title"
     else
-      @sort_what = "na"
+      #@sort_what = "n/a"
     end
   end
 
