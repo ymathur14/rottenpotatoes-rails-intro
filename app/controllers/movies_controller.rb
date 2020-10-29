@@ -32,13 +32,13 @@ class MoviesController < ApplicationController
     if params[:ratings].nil?
       flash.keep
       #if no selection then display all 
-      if session[:selected_ratings].nil?
+      if session[:selected].nil?
         rat = {} ; 
         @all_ratings.each { |r| rat[r] = "yes" } ; 
-        session[:selected_ratings] = rat
-        @selected_ratings = session[:selected_ratings]
+        session[:selected] = rat
+        @selected = session[:selected]
       else
-        @selected_ratings = session[:selected_ratings]
+        @selected = session[:selected]
         if not params[:sort].nil?
           session[:sort] = params[:sort]
         end
@@ -47,24 +47,24 @@ class MoviesController < ApplicationController
       if not params[:sort].nil?
         session[:sort] = params[:sort] 
       end
-      redirect_to movies_path :ratings => @selected_ratings, :sort => session[:sort]
+      redirect_to movies_path :ratings => @selected, :sort => session[:sort]
       return
     else
-      session[:selected_ratings] = params[:ratings]
-      @selected_ratings = session[:selected_ratings]
+      session[:selected] = params[:ratings]
+      @selected = session[:selected]
     end
     
     temp = Movie
-    if not session[:selected_ratings].nil?
-      temp = temp.where(:rating => session[:selected_ratings].keys)
+    if not session[:selected].nil?
+      temp = temp.where(:rating => session[:selected].keys)
     end
 
     @movies = temp.order(params[:sort])
     
     if session[:sort_title] == 1
-      @movies = temp.order(:title).where(:rating => session[:selected_ratings].keys)
+      @movies = temp.order(:title).where(:rating => session[:selected].keys)
     elsif session[:sort_release_date] == 1
-      @movies = temp.order(:release_date).where(:rating => session[:selected_ratings].keys)
+      @movies = temp.order(:release_date).where(:rating => session[:selected].keys)
     else
       #@sort_what = "n/a"
     end
