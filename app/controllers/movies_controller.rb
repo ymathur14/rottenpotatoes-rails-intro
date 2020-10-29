@@ -8,7 +8,6 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    
     #sorting da columnz
     if session[:sort_title].nil?
       session[:sort_title] = 0
